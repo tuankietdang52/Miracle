@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Assets.Scripts.Utility
 {
 	/// <summary>
-	/// Provide all LayerMask as property
+	/// Provide more property and method about layermask
 	/// </summary>
 	public static class LayerMaskStorage
 	{
@@ -17,5 +17,17 @@ namespace Assets.Scripts.Utility
 		public static LayerMask Platform => LayerMask.GetMask("Platform");
 		public static LayerMask UI => LayerMask.GetMask("UI");
 
+		public static LayerMask GetMultipleMasks(List<ELayerMask> layers)
+		{
+			return LayerMask.GetMask(layers.Select(layer => layer.ToString()).ToArray());
+		}
+
+		public enum ELayerMask
+		{
+			Ground,
+			Water,
+			Platform,
+			UI
+		}
 	}
 }

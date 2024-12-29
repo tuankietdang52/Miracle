@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+using ELayerMask = Assets.Scripts.Utility.LayerMaskStorage.ELayerMask;
+
 namespace Assets.Scripts.Utility
 {
 	/// <summary>
@@ -16,6 +18,7 @@ namespace Assets.Scripts.Utility
 		/// Size of the collision area
 		/// </summary>
 		public Vector2 Size;
+		public bool IsDropFromPlatform = false;
 
 		private void OnDrawGizmosSelected()
 		{
@@ -25,12 +28,17 @@ namespace Assets.Scripts.Utility
 
 		public bool IsOnGround()
 		{
-			if (Physics2D.OverlapBox(transform.position, Size, 0, LayerMaskStorage.Ground))
-			{
-				return true;
-			}
+			List<ELayerMask> layers = IsDropFromPlatform ?
+				new(){ ELayerMask.Ground } : new(){ ELayerMask.Ground, ELayerMask.Platform };
 
-			return false;
+			var masks = LayerMaskStorage.GetMultipleMasks(layers);
+			return Physics2D.OverlapBox(transform.position, Size, 0, masks);
+		}
+
+		public bool IsOnPlatform()
+		{
+			if (IsDropFromPlatform) return false;
+			return Physics2D.OverlapBox(transform.position, Size, 0, LayerMaskStorage.Platform);
 		}
 	}
 }

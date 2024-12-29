@@ -43,6 +43,8 @@ namespace Assets.Scripts.Manager
 			
 		}
 
+		#region Player Input
+
 		private void HandlePlayerMove()
 		{
 			PlayerMoving();
@@ -51,11 +53,18 @@ namespace Assets.Scripts.Manager
 			{
 				PlayerJumping();
 			}
+
+			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+			{
+				Player.DropFromPlatform();
+			}
 		}
+
+		#endregion
 
 		private void PlayerMoving()
 		{
-			if (!Player.TryGetComponent<MovementComponent>(out var movement)) return;
+			var movement = Player.MovementComponent;
 
 			Vector3 velocity = new()
 			{
@@ -68,7 +77,7 @@ namespace Assets.Scripts.Manager
 		private void PlayerJumping()
 		{
 			if (!Player.IsOnGround()) return;
-			if (!Player.TryGetComponent<MovementComponent>(out var movement)) return;
+			var movement = Player.MovementComponent;
 
 			Vector3 velocity = new()
 			{

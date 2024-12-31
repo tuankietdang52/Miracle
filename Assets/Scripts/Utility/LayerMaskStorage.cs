@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Utility
 {
@@ -15,6 +16,8 @@ namespace Assets.Scripts.Utility
 		public static LayerMask Ground => LayerMask.GetMask("Ground");
 		public static LayerMask Water => LayerMask.GetMask("Water");
 		public static LayerMask Platform => LayerMask.GetMask("Platform");
+		public static LayerMask Entity => LayerMask.GetMask("Entity");
+		public static LayerMask Utility => LayerMask.GetMask("Utility");
 		public static LayerMask UI => LayerMask.GetMask("UI");
 
 		public static LayerMask GetMultipleMasks(List<ELayerMask> layers)
@@ -27,7 +30,14 @@ namespace Assets.Scripts.Utility
 			Ground,
 			Water,
 			Platform,
+			Entity,
+			Utility,
 			UI
+		}
+
+		public static int GetLayer(ELayerMask mask)
+		{
+			return LayerMask.NameToLayer(mask.ToString());
 		}
 	}
 }

@@ -61,22 +61,37 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.31f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Animation\Player\PlayerAnimator.cs" />
+    <Compile Include="Assets\Scripts\Action\Attack\MeleeAttackHandler.cs" />
+    <Compile Include="Assets\Scripts\Utility\CallByAnimationAttribute.cs" />
     <Compile Include="Assets\Scripts\Manager\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Weapon\Melee\RustySword.cs" />
+    <Compile Include="Assets\Scripts\GameCamera\FollowPlayerCamera.cs" />
     <Compile Include="Assets\Scripts\Manager\PlayerManager.cs" />
-    <Compile Include="Assets\Scripts\Animation\IAnimator.cs" />
     <Compile Include="Assets\Scripts\Action\IMoveable.cs" />
     <Compile Include="Assets\Scripts\Entity\Player\Player.cs" />
+    <Compile Include="Assets\Scripts\Components\AttackComponent.cs" />
+    <Compile Include="Assets\Scripts\Character\LostKnight.cs" />
+    <Compile Include="Assets\Scripts\Action\Attack\ICanAttack.cs" />
+    <Compile Include="Assets\Scripts\Weapon\IWeapon.cs" />
     <Compile Include="Assets\Scripts\Log\LoggerExtension.cs" />
     <Compile Include="Assets\Scripts\Entity\BaseEntity.cs" />
+    <Compile Include="Assets\Scripts\Action\Attack\AttackHolder.cs" />
     <Compile Include="Assets\Scripts\Utility\ResultHandler.cs" />
+    <Compile Include="Assets\Scripts\Weapon\Melee\IMelee.cs" />
+    <Compile Include="Assets\Scripts\Utility\Cooldown\CooldownTimer.cs" />
     <Compile Include="Assets\Scripts\Components\MovementComponent.cs" />
+    <Compile Include="Assets\Scripts\Utility\PrefabManager.cs" />
+    <Compile Include="Assets\Scripts\Character\BaseCharacter.cs" />
     <Compile Include="Assets\Scripts\Utility\LayerMaskStorage.cs" />
+    <Compile Include="Assets\Scripts\Action\EState.cs" />
+    <Compile Include="Assets\Scripts\Action\Attack\AttackHandler.cs" />
     <Compile Include="Assets\Scripts\Log\LogHandler.cs" />
+    <Compile Include="Assets\Scripts\Character\Animations\IAnimator.cs" />
     <Compile Include="Assets\Scripts\Manager\IManager.cs" />
+    <Compile Include="Assets\Scripts\Character\Animations\LostKnightAnimator.cs" />
     <Compile Include="Assets\Scripts\Components\HealthComponent.cs" />
     <Compile Include="Assets\Scripts\Utility\GroundCheckObject.cs" />
-    <Compile Include="Assets\Scripts\Animation\EAnimationParameterType.cs" />
+    <Compile Include="Assets\Scripts\GameCamera\ICameraMachine.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1095,6 +1110,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.2D.IK.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.Cinemachine.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Cinemachine.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.2D.SpriteShape.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.2D.SpriteShape.Runtime.dll</HintPath>
       <Private>False</Private>
@@ -1139,12 +1158,20 @@
       <HintPath>Library\ScriptAssemblies\Unity.Multiplayer.Center.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.Splines">
+      <HintPath>Library\ScriptAssemblies\Unity.Splines.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Mathematics.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Mathematics.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.GPUDriven.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.GPUDriven.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Cinemachine">
+      <HintPath>Library\ScriptAssemblies\Unity.Cinemachine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.001">
@@ -1185,6 +1212,10 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Config.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Config.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Splines.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Splines.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.2D.Aseprite.Common">

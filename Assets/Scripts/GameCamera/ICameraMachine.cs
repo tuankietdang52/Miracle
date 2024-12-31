@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
-namespace Assets.Scripts.Animation
+namespace Assets.Scripts.GameCamera
 {
-	public enum EAnimationParameterType
+	public interface ICameraMachine
 	{
-		INTERGER,
-		FLOAT,
-		BOOLEAN
+		void SetSize(float size);
 	}
 }

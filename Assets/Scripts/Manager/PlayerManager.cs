@@ -30,7 +30,7 @@ namespace Assets.Scripts.Manager
 
 		public void Update()
 		{
-			
+			HandlePlayerAttack();
 		}
 
 		public void FixedUpdate()
@@ -57,6 +57,14 @@ namespace Assets.Scripts.Manager
 			if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 			{
 				Player.DropFromPlatform();
+			}
+		}
+
+		private void HandlePlayerAttack()
+		{
+			if (Input.GetKeyDown(KeyCode.J))
+			{
+				Player.DoAnimationAttack();
 			}
 		}
 

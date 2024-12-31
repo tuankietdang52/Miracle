@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Animation;
+﻿using Assets.Scripts.Action;
+using Assets.Scripts.Character;
 using Assets.Scripts.Log;
 using Assets.Scripts.Utility;
 using System;
@@ -18,11 +19,15 @@ namespace Assets.Scripts.Entity
 	public abstract class BaseEntity : MonoBehaviour
 	{
 		protected Logger logger = LoggerExtension.CreateLogger();
-		protected IAnimator animator;
+		public BaseCharacter Character;
 
 		public GroundCheckObject GroundCheck;
 		public Rigidbody2D Rb { get; protected set; }
 		public Collider2D Collider { get; protected set; }
+
+		public EState State = EState.FREE;
+
+		public int Level = 0;
 
 		protected abstract void SetupStats();
 
@@ -44,7 +49,7 @@ namespace Assets.Scripts.Entity
 
 		protected virtual void Update()
 		{
-			animator?.Update();
+
 		}
 
 		protected virtual void FixedUpdate()
@@ -69,15 +74,25 @@ namespace Assets.Scripts.Entity
 			transform.localScale = new(scaleX, transform.localScale.y, transform.localScale.z);
 		}
 
+		public void ResetState()
+		{
+			State = EState.FREE;
+		}
+
+		public bool IsFacingRight()
+		{
+			return transform.localScale.x > 0;
+		}
+
 		public bool IsOnGround()
 		{
-			if (GroundCheck == null) logger.LogError("Cant found Ground Check Object");
+			if (GroundCheck == null) logger.LogError("Can't found Ground Check Object");
 			return GroundCheck.IsOnGround();
 		}
 
 		public bool IsOnPlatform()
 		{
-			if (GroundCheck == null) logger.LogError("Cant found Ground Check Object");
+			if (GroundCheck == null) logger.LogError("Can't found Ground Check Object");
 			return GroundCheck.IsOnPlatform();
 		}
 
@@ -92,15 +107,19 @@ namespace Assets.Scripts.Entity
 
 			if (!TryGetComponent<PlatformEffector2D>(out var platformEffector))
 			{
-				logger.LogError("Cant found PlatformEffector");
+				logger.LogError("Can't found PlatformEffector");
 				yield break;
 			}
 
+			// exclude platform layer for collider, mean that entity will ignore collide
+			// with platform layer
 			platformEffector.useColliderMask = false;
 			Collider.excludeLayers = LayerMaskStorage.Platform;
 			GroundCheck.IsDropFromPlatform = true;
 
 			yield return new WaitForSeconds(0.25f);
+
+			// reset collider
 			ResetColliderAfterDrop(platformEffector);
 		}
 

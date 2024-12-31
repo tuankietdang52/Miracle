@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Assets.Scripts.GameCamera;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Assets.Scripts.Manager
@@ -18,6 +20,7 @@ namespace Assets.Scripts.Manager
 		};
 
 		public static GameManager Instance;
+		public ICameraMachine Camera { get; set; }
 
 		private void Awake()
 		{

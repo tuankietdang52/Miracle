@@ -30,17 +30,19 @@ namespace Assets.Scripts.Manager
 
 		public void Update()
 		{
+			if (Player.IsDead()) return;
 			HandlePlayerAttack();
 		}
 
 		public void FixedUpdate()
 		{
+			if (Player.IsDead()) return;
 			HandlePlayerMove();
 		}
 
 		public void LateUpdate()
 		{
-			
+			if (Player.IsDead()) return;
 		}
 
 		#region Player Input

@@ -1,15 +1,14 @@
-﻿using Assets.Scripts.Weapon;
+﻿using Assets.Scripts.AI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
-namespace Assets.Scripts.Weapon.Melee
+namespace Assets.Scripts.Entity
 {
-	public interface IMelee : IWeapon
+	public interface INpc
 	{
-
+		public EnemyAI AI { get; set; }
 	}
 }

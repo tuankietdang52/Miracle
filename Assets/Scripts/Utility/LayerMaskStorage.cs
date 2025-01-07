@@ -18,6 +18,7 @@ namespace Assets.Scripts.Utility
 		public static LayerMask Platform => LayerMask.GetMask("Platform");
 		public static LayerMask Entity => LayerMask.GetMask("Entity");
 		public static LayerMask Utility => LayerMask.GetMask("Utility");
+		public static LayerMask Sprites => LayerMask.GetMask("Sprites");
 		public static LayerMask UI => LayerMask.GetMask("UI");
 
 		public static LayerMask GetMultipleMasks(List<ELayerMask> layers)
@@ -32,6 +33,7 @@ namespace Assets.Scripts.Utility
 			Platform,
 			Entity,
 			Utility,
+			Sprites,
 			UI
 		}
 

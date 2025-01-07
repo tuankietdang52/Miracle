@@ -1,7 +1,9 @@
 ﻿using Assets.Scripts.Action;
-using Assets.Scripts.Character;
+using Assets.Scripts.Character.LostKnight;
 using Assets.Scripts.Log;
+using Assets.Scripts.Manager;
 using Assets.Scripts.Utility;
+using Assets.Scripts.Utility.Cooldown;
 using System;
 using System.Collections;
 using System.Linq;
@@ -19,53 +21,72 @@ namespace Assets.Scripts.Entity
 	public abstract class BaseEntity : MonoBehaviour
 	{
 		protected Logger logger = LoggerExtension.CreateLogger();
+		protected CooldownTimer cooldownTimer;
+
 		public BaseCharacter Character;
 
 		public GroundCheckObject GroundCheck;
 		public Rigidbody2D Rb { get; protected set; }
 		public Collider2D Collider { get; protected set; }
 
-		public EState State = EState.FREE;
+		public EState State = EState.IDLE;
+		public string[] EnemyTag { get; set; } = { };
 
 		public int Level = 0;
 
 		protected abstract void SetupStats();
 
-		protected virtual void Awake()
+		private void SetupCollisionAndPhysic()
 		{
 			Rb = GetComponent<Rigidbody2D>();
 			Collider = GetComponent<Collider2D>();
 
 			Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 			Rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+		}
 
+		protected virtual void Awake()
+		{
+			SetupCollisionAndPhysic();
+			cooldownTimer = new(this);
 			SetupStats();
 		}
 
 		protected virtual void Start()
 		{
-
+			EnemyTag = GameManager.Instance.GetEnemyTag(tag);
 		}
 
 		protected virtual void Update()
 		{
-
+			if (IsDead()) return; 
 		}
 
 		protected virtual void FixedUpdate()
 		{
-
+			if (IsDead()) return;
 		}
 
 		protected virtual void LateUpdate()
 		{
+			if (State == EState.DESTROY && !CompareTag("Player"))
+			{
+				Destroy(gameObject);
+			}
+		}
 
+		public TInterface IsImplement<TInterface>() where TInterface : class
+		{
+			if (!typeof(TInterface).IsInterface) return null;
+			if (this is not TInterface entity) return null;
+			
+			return entity;
 		}
 
 		/// <summary>
 		/// Flip sprite base on direction of entity when move
 		/// </summary>
-		protected virtual void FlipSprite(float velocityX)
+		public virtual void FlipSprite(float velocityX)
 		{
 			var scaleX = transform.localScale.x;
 			if (velocityX > 0) scaleX = math.abs(scaleX);
@@ -74,10 +95,21 @@ namespace Assets.Scripts.Entity
 			transform.localScale = new(scaleX, transform.localScale.y, transform.localScale.z);
 		}
 
+		public void FlipHorizontal()
+		{
+			var scaleX = transform.localScale.x;
+			var absX = math.abs(scaleX);
+			scaleX = scaleX > 0 ? -absX : absX;
+
+			transform.localScale = new(scaleX, transform.localScale.y, transform.localScale.z);
+		}
+
 		public void ResetState()
 		{
-			State = EState.FREE;
+			State = EState.IDLE;
 		}
+
+		public bool IsDead() => State == EState.DEAD || State == EState.DESTROY;
 
 		public bool IsFacingRight()
 		{
@@ -98,7 +130,7 @@ namespace Assets.Scripts.Entity
 
 		public void DropFromPlatform()
 		{
-			StartCoroutine(DroppingFromPlatform());
+			cooldownTimer.Start("drop", DroppingFromPlatform());
 		}
 
 		private IEnumerator DroppingFromPlatform()
@@ -121,6 +153,7 @@ namespace Assets.Scripts.Entity
 
 			// reset collider
 			ResetColliderAfterDrop(platformEffector);
+			cooldownTimer.ReleaseCoroutine("drop");
 		}
 
 		private void ResetColliderAfterDrop(PlatformEffector2D platformEffector)

@@ -1,28 +1,37 @@
-using Assets.Scripts.Action;
-using Assets.Scripts.Weapon.Melee;
-using Assets.Scripts.Components;
-using Assets.Scripts.Weapon;
-using Assets.Scripts.Log;
-using UnityEngine;
-using Assets.Scripts.Action.Attack;
-using Assets.Scripts.Manager;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Assets.Scripts.Action;
+using Assets.Scripts.Action.Attack;
+using Assets.Scripts.AI;
+using Assets.Scripts.Character.Enemy.Skeleton;
+using Assets.Scripts.Components;
+using Assets.Scripts.Manager;
+using Assets.Scripts.Utility.InspectorComponent;
+using Assets.Scripts.Weapon;
+using Assets.Scripts.Weapon.Melee;
+using UnityEngine;
 
-namespace Assets.Scripts.Entity.Player
+namespace Assets.Scripts.Entity.Enemy.Minions
 {
-	public class Player : BaseEntity, IMoveable, ICanAttack, IAttackable
+	public class Skeleton : BaseEntity, INpc, IMoveable, ICanAttack, IAttackable
 	{
-		public static Player Instance;
+		public EnemyAI AI { get; set; }
+
+		public FieldOfView FOV;
 
 		[SerializeField]
 		private AttackHolder attackHolder;
 		public AttackHolder AttackHolder { get => attackHolder; set => attackHolder = value; }
-
 		public BaseWeapon Weapon { get; set; }
 
 		#region Stats
 
 		public HealthComponent HealthComponent { get; set; }
+
 		public MovementComponent MovementComponent { get; set; }
 
 		public AttackComponent AttackComponent { get; set; }
@@ -41,14 +50,14 @@ namespace Assets.Scripts.Entity.Player
 		{
 			base.Awake();
 
-			Instance = Instance == null ? this : Instance;
-			DontDestroyOnLoad(this);
+			AI = new SkeletonAI(this);
+			AI.Awake();
 		}
 
 		protected override void Start()
 		{
 			base.Start();
-			AttackHolder.Owner = this;
+			AI.Start();
 		}
 
 		protected override void Update()
@@ -60,23 +69,19 @@ namespace Assets.Scripts.Entity.Player
 			}
 
 			base.Update();
+			AI.Update();
 		}
 
-		public void DoAnimationAttack()
+		protected override void FixedUpdate()
 		{
-			if (State != EState.IDLE) return;
-			State = EState.ATTACKING;
+			base.FixedUpdate();
+			AI.FixedUpdate();
 		}
 
-		public void Attack()
+		protected override void LateUpdate()
 		{
-			if (attackHolder == null)
-			{
-				logger.LogError("Can't found attack point");
-				return;
-			}
-
-			attackHolder.DoAttack();
+			base.LateUpdate();
+			AI.LateUpdate();
 		}
 
 		public void Move(Vector3 velocity)
@@ -90,6 +95,17 @@ namespace Assets.Scripts.Entity.Player
 			};
 
 			FlipSprite(velocity.x);
+		}
+
+		public void Attack()
+		{
+			attackHolder.DoAttack();
+		}
+
+		public void DoAnimationAttack()
+		{
+			if (State != EState.IDLE) return;
+			State = EState.ATTACKING;
 		}
 
 		public void DecreaseHealth(float value)

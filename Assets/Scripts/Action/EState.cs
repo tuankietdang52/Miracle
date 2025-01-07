@@ -8,8 +8,10 @@ namespace Assets.Scripts.Action
 {
 	public enum EState
 	{
-		FREE,
+		IDLE,
 		ATTACKING,
-		DEAD
+		TAKEHIT,
+		DEAD,
+		DESTROY
 	}
 }

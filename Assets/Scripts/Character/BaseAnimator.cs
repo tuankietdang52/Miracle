@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Entity;
+using Assets.Scripts.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,36 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Scripts.Character.Animations
+namespace Assets.Scripts.Character
 {
-	public class LostKnightAnimator : IAnimator
+	public abstract class BaseAnimator
 	{
+		protected readonly Logger logger = LoggerExtension.CreateLogger(); 
+		public BaseEntity Owner { get; protected set; }
 		public Animator AnimatorController { get; set; }
 
-		public LostKnightAnimator(Animator animator)
-		{
-			AnimatorController = animator;
-		}
-
-		public void Update(BaseEntity owner)
-		{
-			UpdateMagnitude(owner);
-			UpdateVelocityY(owner);
-		}
-
-		private void UpdateMagnitude(BaseEntity owner)
-		{
-			// for moving, if magnitude > 0.1 play moving, otherwise play idle
-			var magnitude = owner.Rb.linearVelocity.magnitude;
-			AnimatorController.SetFloat("magnitude", magnitude);
-		}
-
-		private void UpdateVelocityY(BaseEntity owner)
-		{
-			var velocityY = owner.Rb.linearVelocityY;
-			AnimatorController.SetFloat("velocityY", velocityY);
-			AnimatorController.SetBool("isOnGround", owner.IsOnGround());
-		}
+		public abstract void Update();
 
 		public void Do(string animationName)
 		{

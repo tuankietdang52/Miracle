@@ -14,6 +14,8 @@ namespace Assets.Scripts.Manager
 	/// </summary>
 	public class GameManager : MonoBehaviour
 	{
+		public GameObject a;
+
 		private readonly IEnumerable<IManager> managers = new List<IManager>()
 		{
 			new PlayerManager(),
@@ -21,6 +23,16 @@ namespace Assets.Scripts.Manager
 
 		public static GameManager Instance;
 		public ICameraMachine Camera { get; set; }
+
+		public string[] GetEnemyTag(string ownerTag)
+		{
+			return ownerTag switch
+			{
+				"Player" or "Allies" => new string[] { "Enemy" },
+				"Enemy" => new string[] { "Allies", "Player" },
+				_ => new string[] { }
+			};
+		}
 
 		private void Awake()
 		{
@@ -44,6 +56,11 @@ namespace Assets.Scripts.Manager
 			foreach (var manager in managers)
 			{
 				manager.Update();
+			}
+
+			if (Input.GetKeyDown(KeyCode.G))
+			{
+				a.transform.position = new(300, 300, 0);
 			}
 		}
 

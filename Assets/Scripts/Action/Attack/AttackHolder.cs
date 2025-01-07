@@ -13,7 +13,7 @@ namespace Assets.Scripts.Action.Attack
 	public class AttackHolder : MonoBehaviour
 	{
 		public BaseEntity Owner;
-		public AttackHandler HandlerPrefab;
+		public AttackHandler AttackHandlerPrefab;
 
 		[HideInInspector]
 		public AttackHandler AttackHandler;
@@ -29,7 +29,7 @@ namespace Assets.Scripts.Action.Attack
 		private void Start()
 		{
 			AttackHandler =
-				PrefabManager.ClonePrefab(HandlerPrefab, this, LayerMaskStorage.ELayerMask.Utility);
+				PrefabManager.ClonePrefab(AttackHandlerPrefab, this, LayerMaskStorage.ELayerMask.Utility);
 			AttackHandler.SetupHandler(Owner, this);
 		}
 
@@ -38,9 +38,6 @@ namespace Assets.Scripts.Action.Attack
 			AttackHandler.Attacking();
 		}
 
-		public int GetComboIndex()
-		{
-			return AttackHandler.ComboIndex;
-		}
+		public int GetComboIndex() => AttackHandler.ComboIndex;
 	}
 }

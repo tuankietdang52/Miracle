@@ -9,14 +9,12 @@ using UnityEngine;
 
 namespace Assets.Scripts.Action
 {
-	public interface IMoveable
+	public interface IAttackable
 	{
-		public MovementComponent MovementComponent { get; set; }
+		public HealthComponent HealthComponent { get; set; }
 
-		/// <summary>
-		/// Move the object by velocity
-		/// </summary>
-		/// <param name="velocity"></param>
-		public void Move(Vector3 velocity);
+		public void DecreaseHealth(float value);
+
+		public void Dead();
 	}
 }

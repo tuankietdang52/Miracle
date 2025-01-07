@@ -14,7 +14,7 @@ namespace Assets.Scripts.GameCamera
 	public class FollowPlayerCamera : MonoBehaviour, ICameraMachine
 	{
 		private CinemachineCamera cinemachineCamera;
-		public float DefaultSize = 2;
+		public float DefaultSize = 2f;
 
 		private void Awake()
 		{

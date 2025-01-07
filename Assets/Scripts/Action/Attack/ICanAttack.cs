@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Components;
+using Assets.Scripts.Entity;
 using Assets.Scripts.Weapon;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Assets.Scripts.Action.Attack
 {
 	public interface ICanAttack
 	{
-		public IWeapon Weapon { get; set; }
+		public BaseWeapon Weapon { get; set; }
 		public AttackHolder AttackHolder { get; set; }
 
 		public AttackComponent AttackComponent { get; set; }

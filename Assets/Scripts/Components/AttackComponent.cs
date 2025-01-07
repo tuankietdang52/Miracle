@@ -15,6 +15,6 @@ namespace Assets.Scripts.Components
 
 		public Vector2[] AttackHolderPositionModify;
 
-		public int ComboCount => AttackRange.Length;
+		public int ComboCount => BaseDamage.Length;
 	}
 }

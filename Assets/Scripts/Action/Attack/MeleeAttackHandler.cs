@@ -16,21 +16,44 @@ namespace Assets.Scripts.Action.Attack
 {
 	public class MeleeAttackHandler : AttackHandler
 	{
-		public override void Attacking()
+		public override bool IsEnemiesOnAttackRange()
 		{
-			if (InAttackCooldown) return;
+			var colliders = GetAttackRangeColliders();
+			return colliders.Length != 0;
+		}
 
+		private Collider2D[] GetAttackRangeColliders()
+		{
 			List<ELayerMask> layers = new() { ELayerMask.Entity };
-
 			var masks = LayerMaskStorage.GetMultipleMasks(layers);
 
+			var attackStats = AttackBehaviour.AttackComponent;
+
 			var pos = (Vector2)transform.position;
-			pos += Owner.IsFacingRight() ? 
+			pos += Owner.IsFacingRight() ?
 				attackStats.AttackHolderPositionModify[ComboIndex] : -attackStats.AttackHolderPositionModify[ComboIndex];
 
-			var collider = 
+			var colliders = 
 				Physics2D.OverlapBoxAll(pos, attackStats.AttackRange[ComboIndex], 0, masks);
-			DecreaseOnHitEnemyHealth(collider);
+
+			var enemyTag = Owner.EnemyTag;
+			return colliders
+				.Where(collider => 
+					enemyTag.Contains(collider.tag) && 
+					!collider.gameObject.GetComponent<BaseEntity>().IsDead() &&
+					collider.gameObject != Owner.gameObject)
+				.ToArray();
+		}
+
+		public override void Attacking()
+		{
+			if (InAttackCooldown) {
+				if (!Owner.IsDead()) Owner.State = EState.IDLE;
+				return;
+			}
+
+			var colliders = GetAttackRangeColliders();
+			DecreaseOnHitEnemyHealth(colliders);
 
 			SetAttackTimeOut();
 			SetComboTimeOut();
@@ -38,17 +61,16 @@ namespace Assets.Scripts.Action.Attack
 
 		private void DecreaseOnHitEnemyHealth(Collider2D[] collider)
 		{
-			var weapon = ((ICanAttack) Owner).Weapon;
-
-			float damage = attackStats.BaseDamage[ComboIndex];
-			damage += weapon != null ? weapon.Damage : 0;
+			var weapon = AttackBehaviour.Weapon;
 
 			foreach (var obj in collider)
 			{
-				var enemy = obj.gameObject;
-				if (enemy == Owner.gameObject) continue;
+				var enemyObj = obj.gameObject;
 
-				logger.Log(damage);
+				if (enemyObj == Owner.gameObject) continue;
+				if (!enemyObj.TryGetComponent<IAttackable>(out var enemy)) return;
+
+				DealDamage(enemy);
 			}
 		}
 	}

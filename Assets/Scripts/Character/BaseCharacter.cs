@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Character.Animations;
-using Assets.Scripts.Entity;
+﻿using Assets.Scripts.Entity;
 using Assets.Scripts.Log;
 using Assets.Scripts.Utility;
 using System;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Assets.Scripts.Character
+namespace Assets.Scripts.Character.LostKnight
 {
 	/// <summary>
 	/// Base class for sprite object to play animation, stats for object base on character
@@ -21,7 +20,7 @@ namespace Assets.Scripts.Character
 		protected readonly Logger logger = LoggerExtension.CreateLogger();
 
 		public BaseEntity Owner;
-		public IAnimator Animator;
+		public BaseAnimator Animator;
 
 		protected abstract string AnimatorPath { get; set; }
 
@@ -40,7 +39,7 @@ namespace Assets.Scripts.Character
 
 		protected virtual void Update()
 		{
-			Animator?.Update(Owner);
+			Animator?.Update();
 		}
 
 		protected virtual void FixedUpdate()

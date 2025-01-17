@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Action.Attack;
+using Assets.Scripts.Effect;
 using Assets.Scripts.Entity;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Assets.Scripts.Weapon
 		public float TimeCombo { get; set; }
 		public float AttackSpeed { get; set; }
 		public float Damage { get; set; }
+		public List<IEffectFunction> Effects = new();
 
 		private float criticalChange;
 		public float CriticalChance { 

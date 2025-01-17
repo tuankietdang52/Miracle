@@ -5,6 +5,7 @@ using Assets.Scripts.Utility.Cooldown;
 using Assets.Scripts.Weapon;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Action.Attack
@@ -13,18 +14,17 @@ namespace Assets.Scripts.Action.Attack
 	{
 		protected readonly Logger logger = LoggerExtension.CreateLogger();
 
-		public BaseEntity Owner;
 		public AttackHolder attackHolder;
 
 		public int ComboIndex { get; protected set; }
 
-		protected bool InAttackCooldown = false;
-		protected ICanAttack AttackBehaviour;
+		public bool InAttackCooldown { get; protected set; } = false;
+		protected ICanAttack Owner;
 
 		private CooldownTimer cooldownTimer;
 		private DamageDealer damageDealer;
 
-		public void SetupHandler(BaseEntity owner, AttackHolder attackHolder)
+		public void SetupHandler(ICanAttack owner, AttackHolder attackHolder)
 		{
 			InAttackCooldown = false;
 			Owner = owner;
@@ -35,23 +35,12 @@ namespace Assets.Scripts.Action.Attack
 
 		public void Start()
 		{
-			try
-			{
-				AttackBehaviour = Owner.IsImplement<ICanAttack>();
-			}
-			catch (Exception e)
-			{
-				logger.LogError("Owner cannot attack");
-				logger.LogException(e);
-			}
-
-			damageDealer = new(AttackBehaviour.AttackComponent);
+			damageDealer = new(Owner.AttackComponent);
 			cooldownTimer = new(this);
 		}
 
 		public abstract void Attacking();
 
-		public abstract bool IsEnemiesOnAttackRange();
 
 		private void Update()
 		{
@@ -60,9 +49,9 @@ namespace Assets.Scripts.Action.Attack
 
 		private void OnDrawGizmosSelected()
 		{
-			var comp = AttackBehaviour.AttackComponent;
+			var comp = Owner.AttackComponent;
 
-			if (AttackBehaviour.Weapon == null) return;
+			if (Owner.Weapon == null) return;
 
 			Gizmos.color = Color.blue;
 			Gizmos.DrawWireCube(transform.position, comp.AttackRange[ComboIndex]);
@@ -75,17 +64,8 @@ namespace Assets.Scripts.Action.Attack
 		/// <param name="weapon"></param>
 		protected void DealDamage(IAttackable entity)
 		{
-			damageDealer.DealDamage(entity, ComboIndex, AttackBehaviour.Weapon);
-			FlipToAttacker((BaseEntity)entity);
-		}
-
-		private void FlipToAttacker(BaseEntity enemy)
-		{
-			var enemyX = enemy.transform.position.x;
-			var attackerX = Owner.transform.position.x;
-
-			float x = attackerX - enemyX;
-			enemy.FlipSprite(x);
+			float damage = damageDealer.GetDamageDeal(entity, ComboIndex, Owner.Weapon);
+			if (damage != -1) entity.TakingHit(attackHolder.Owner, damage);
 		}
 
 		protected void SetAttackTimeOut()
@@ -96,11 +76,9 @@ namespace Assets.Scripts.Action.Attack
 		private IEnumerator DoAttackCooldown()
 		{
 			InAttackCooldown = true;
-
-			yield return new WaitForSeconds(AttackBehaviour.Weapon.AttackSpeed);
-
+			yield return new WaitForSeconds(Owner.Weapon.AttackSpeed);
 			InAttackCooldown = false;
-			Owner.State = EState.IDLE;
+
 			cooldownTimer.ReleaseCoroutine("attack");
 		}
 
@@ -114,13 +92,13 @@ namespace Assets.Scripts.Action.Attack
 		private void NextCombo()
 		{
 			ComboIndex++;
-			if (ComboIndex >= AttackBehaviour.AttackComponent.ComboCount) 
+			if (ComboIndex >= Owner.AttackComponent.ComboCount) 
 				ComboIndex = 0;
 		}
 
 		private IEnumerator DoComboCountdown()
 		{
-			var attackObject = AttackBehaviour;
+			var attackObject = Owner;
 			yield return new WaitForSeconds(attackObject.Weapon.TimeCombo);
 
 			ComboIndex = 0;

@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Components;
+using Assets.Scripts.Effect;
 using Assets.Scripts.Entity;
 using Assets.Scripts.Weapon;
 using System;
@@ -16,6 +17,7 @@ namespace Assets.Scripts.Action.Attack
 		public AttackHolder AttackHolder { get; set; }
 
 		public AttackComponent AttackComponent { get; set; }
+		public List<IAttackEffect> AttackEffects { get; }
 
 		public void DoAnimationAttack();
 		public void Attack();

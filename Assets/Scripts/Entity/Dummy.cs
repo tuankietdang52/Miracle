@@ -22,6 +22,11 @@ namespace Assets.Scripts.Entity
 			
 		}
 
+		public void TakingHit(BaseEntity attacker, float damage)
+		{
+
+		}
+
 		protected override void SetupStats()
 		{
 			HealthComponent.Health = 1;

@@ -7,6 +7,11 @@ using UnityEngine;
 using Assets.Scripts.Action.Attack;
 using Assets.Scripts.Manager;
 using System.Collections;
+using Assets.Scripts.Effect.Buff;
+using System.Collections.Generic;
+using Assets.Scripts.Effect;
+using Assets.Scripts.Utility;
+using System;
 
 namespace Assets.Scripts.Entity.Player
 {
@@ -19,6 +24,8 @@ namespace Assets.Scripts.Entity.Player
 		public AttackHolder AttackHolder { get => attackHolder; set => attackHolder = value; }
 
 		public BaseWeapon Weapon { get; set; }
+
+		public List<IAttackEffect> AttackEffects { get; } = new();
 
 		#region Stats
 
@@ -35,12 +42,15 @@ namespace Assets.Scripts.Entity.Player
 			MovementComponent = GetComponent<MovementComponent>();
 			AttackComponent = GetComponent<AttackComponent>();
 			Weapon = GetComponent<BaseWeapon>();
+
+			Effects.Add(new BasicRegeneration(HealthComponent.HealthRegeneration));
 		}
 
 		protected override void Awake()
 		{
 			base.Awake();
 
+			Rb.mass = 0;
 			Instance = Instance == null ? this : Instance;
 			DontDestroyOnLoad(this);
 		}
@@ -64,8 +74,8 @@ namespace Assets.Scripts.Entity.Player
 
 		public void DoAnimationAttack()
 		{
-			if (State != EState.IDLE) return;
-			State = EState.ATTACKING;
+			if (State != EState.Idle) return;
+			if (!attackHolder.InAttackCooldown()) State = EState.Attacking;		
 		}
 
 		public void Attack()
@@ -81,7 +91,7 @@ namespace Assets.Scripts.Entity.Player
 
 		public void Move(Vector3 velocity)
 		{
-			if (State != EState.IDLE) return;
+			if (State != EState.Idle) return;
 
 			Rb.linearVelocity = new()
 			{
@@ -92,18 +102,25 @@ namespace Assets.Scripts.Entity.Player
 			FlipSprite(velocity.x);
 		}
 
+		public void TakingHit(BaseEntity attacker, float value)
+		{
+			DecreaseHealth(value);
+			float direction = this.GetDirectionTo(attacker);
+			FlipSprite(direction);
+		}
+
 		public void DecreaseHealth(float value)
 		{
 			if (IsDead()) return;
 
 			HealthComponent.Health -= value;
-			State = EState.TAKEHIT;
+			State = EState.TakeHit;
 		}
 
 		public void Dead()
 		{
 			if (IsDead()) return;
-			State = EState.DEAD;
+			State = EState.Dead;
 		}
 	}
 }

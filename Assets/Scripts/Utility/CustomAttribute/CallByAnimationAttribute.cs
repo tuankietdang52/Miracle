@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.Scripts.Utility
+namespace Assets.Scripts.Utility.CustomAttribute
 {
 	/// <summary>
 	/// For note, not have any affect to method

@@ -8,12 +8,17 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
+using Assets.Scripts.Effect;
+using Assets.Scripts.Effect.Debuff;
 
 namespace Assets.Scripts.Entity
 {
+	public delegate void OnStateChangedHandler(object sender, EState state);
+
 	/// <summary>
 	/// An abstract class for all entity in game
 	/// </summary>
@@ -29,8 +34,22 @@ namespace Assets.Scripts.Entity
 		public Rigidbody2D Rb { get; protected set; }
 		public Collider2D Collider { get; protected set; }
 
-		public EState State = EState.IDLE;
-		public string[] EnemyTag { get; set; } = { };
+		public event OnStateChangedHandler OnStateChanged;
+
+		[SerializeField]
+		private EState state = EState.Idle;
+		public EState State { 
+			get => state;
+			set
+			{
+				state = value;
+				OnStateChanged.Invoke(this, state);
+			}
+		}
+
+		public string[] EnemyTags { get; set; } = { };
+
+		public UniqueClassCollection<IEffect> Effects = new();
 
 		public int Level = 0;
 
@@ -41,6 +60,7 @@ namespace Assets.Scripts.Entity
 			Rb = GetComponent<Rigidbody2D>();
 			Collider = GetComponent<Collider2D>();
 
+			Rb.mass = 10;
 			Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 			Rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 		}
@@ -54,7 +74,30 @@ namespace Assets.Scripts.Entity
 
 		protected virtual void Start()
 		{
-			EnemyTag = GameManager.Instance.GetEnemyTag(tag);
+			EnemyTags = GameManager.Instance.GetEnemyTag(tag);
+			cooldownTimer.Start("doEffect", DoEffects());
+		}
+
+		private IEnumerator DoEffects()
+		{
+			List<IEffect> endEffect = new();
+
+			while (true)
+			{
+				yield return new WaitForSeconds(1f);
+
+				foreach (var effect in Effects.Values)
+				{
+					effect.Activate(this);
+					if (effect.IsEnd()) endEffect.Add(effect);
+				}
+
+				for (int i = endEffect.Count - 1; i >= 0; i--)
+				{
+					Effects.Remove(endEffect[i]);
+					endEffect.RemoveAt(i);
+				}
+			}
 		}
 
 		protected virtual void Update()
@@ -69,18 +112,41 @@ namespace Assets.Scripts.Entity
 
 		protected virtual void LateUpdate()
 		{
-			if (State == EState.DESTROY && !CompareTag("Player"))
+			if (State == EState.Destroy && !CompareTag("Player"))
 			{
 				Destroy(gameObject);
 			}
 		}
 
-		public TInterface IsImplement<TInterface>() where TInterface : class
+		/// <summary>
+		/// Convert this to TInterface, null if not valid
+		/// </summary>
+		/// <typeparam name="TInterface"></typeparam>
+		/// <returns></returns>
+		public TInterface GetConvertTo<TInterface>() where TInterface : class
 		{
 			if (!typeof(TInterface).IsInterface) return null;
 			if (this is not TInterface entity) return null;
 			
 			return entity;
+		}
+
+		/// <summary>
+		/// Try convert this to TInterface, false if not valid
+		/// </summary>
+		/// <typeparam name="TInterface"></typeparam>
+		/// <param name="entity"></param>
+		/// <returns></returns>
+		public bool TryConvertTo<TInterface>(out TInterface entity) where TInterface : class
+		{
+			entity = null;
+
+			if (!typeof(TInterface).IsInterface) return false;
+			if (this is not TInterface temp) return false;
+
+			entity = temp;
+
+			return true;
 		}
 
 		/// <summary>
@@ -106,10 +172,10 @@ namespace Assets.Scripts.Entity
 
 		public void ResetState()
 		{
-			State = EState.IDLE;
+			State = EState.Idle;
 		}
 
-		public bool IsDead() => State == EState.DEAD || State == EState.DESTROY;
+		public bool IsDead() => State == EState.Dead || State == EState.Destroy;
 
 		public bool IsFacingRight()
 		{

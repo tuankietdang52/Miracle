@@ -27,14 +27,21 @@ namespace Assets.Scripts.Action.Attack
 			return true;
 		}
 
-		public void DealDamage(IAttackable target, int comboIndex, BaseWeapon weapon = null)
+		/// <summary>
+		/// Return damage when valid, -1 if not
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="comboIndex"></param>
+		/// <param name="weapon"></param>
+		/// <returns></returns>
+		public float GetDamageDeal(IAttackable target, int comboIndex, BaseWeapon weapon = null)
 		{
 			try
 			{
 				var temp = target as BaseEntity;
-				if ((temp.IsDead())) return;
+				if ((temp.IsDead())) return -1;
 			}
-			catch { return; }
+			catch { return -1; }
 
 			float damage = weapon != null ? weapon.Damage : 0;
 			damage += attackStats.BaseDamage[comboIndex];
@@ -42,7 +49,7 @@ namespace Assets.Scripts.Action.Attack
 			float criticalChance = weapon != null ? weapon.CriticalChance : 0;
 			if (IsCritical(criticalChance)) damage *= 2;
 
-			target.DecreaseHealth(damage);
+			return damage;
 		}
 	}
 }

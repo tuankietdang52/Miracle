@@ -13,6 +13,7 @@ using Assets.Scripts.Components;
 using Assets.Scripts.Manager;
 using Assets.Scripts.Entity;
 using Assets.Scripts.Entity.Player;
+using Assets.Scripts.Utility.CustomAttribute;
 
 namespace Assets.Scripts.Character.LostKnight
 {
@@ -25,11 +26,7 @@ namespace Assets.Scripts.Character.LostKnight
 
 		protected override void SetupAnimation()
 		{
-			try
-			{
-				attackBehaviour = Owner.IsImplement<ICanAttack>();
-			}
-			catch
+			if (!Owner.TryConvertTo(out attackBehaviour))
 			{
 				logger.LogError("Missing Component");
 				return;
@@ -65,7 +62,7 @@ namespace Assets.Scripts.Character.LostKnight
 		[SuppressMessage("Usage", "IDE0051")]
 		private void Destroy()
 		{
-			Owner.State = EState.DESTROY;
+			Owner.State = EState.Destroy;
 		}
 	}
 }

@@ -13,6 +13,8 @@ namespace Assets.Scripts.Action
 	{
 		public HealthComponent HealthComponent { get; set; }
 
+		public void TakingHit(BaseEntity attacker, float damage);
+
 		public void DecreaseHealth(float value);
 
 		public void Dead();

@@ -4,6 +4,7 @@ using Assets.Scripts.Character.LostKnight;
 using Assets.Scripts.Entity;
 using Assets.Scripts.Log;
 using Assets.Scripts.Utility;
+using Assets.Scripts.Utility.CustomAttribute;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -23,15 +24,12 @@ namespace Assets.Scripts.Character.Enemy.Skeleton
 
 		protected override void SetupAnimation()
 		{
-			try
-			{
-				attackBehaviour = Owner.IsImplement<ICanAttack>();
-			}
-			catch
+			if (!Owner.TryConvertTo(out attackBehaviour))
 			{
 				logger.Log("Missing Component");
 				return;
 			}
+
 			animatorController.runtimeAnimatorController = Resources.Load(AnimatorPath) as RuntimeAnimatorController;
 			Animator = new SkeletonAnimator(Owner, GetComponent<Animator>(), attackBehaviour);
 		}
@@ -62,7 +60,7 @@ namespace Assets.Scripts.Character.Enemy.Skeleton
 		[SuppressMessage("Usage", "IDE0051")]
 		private void Destroy()
 		{
-			Owner.State = EState.DESTROY;
+			Owner.State = EState.Destroy;
 		}
 	}
 }

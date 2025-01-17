@@ -9,7 +9,10 @@ using Assets.Scripts.Action.Attack;
 using Assets.Scripts.AI;
 using Assets.Scripts.Character.Enemy.Skeleton;
 using Assets.Scripts.Components;
+using Assets.Scripts.Effect;
+using Assets.Scripts.Effect.Buff;
 using Assets.Scripts.Manager;
+using Assets.Scripts.Utility;
 using Assets.Scripts.Utility.InspectorComponent;
 using Assets.Scripts.Weapon;
 using Assets.Scripts.Weapon.Melee;
@@ -17,16 +20,16 @@ using UnityEngine;
 
 namespace Assets.Scripts.Entity.Enemy.Minions
 {
-	public class Skeleton : BaseEntity, INpc, IMoveable, ICanAttack, IAttackable
+	public class Skeleton : EnemyEntity, INpc, IMoveable, ICanAttack, IAttackable
 	{
-		public EnemyAI AI { get; set; }
-
 		public FieldOfView FOV;
 
 		[SerializeField]
 		private AttackHolder attackHolder;
 		public AttackHolder AttackHolder { get => attackHolder; set => attackHolder = value; }
 		public BaseWeapon Weapon { get; set; }
+
+		public List<IAttackEffect> AttackEffects { get; set; }
 
 		#region Stats
 
@@ -44,6 +47,8 @@ namespace Assets.Scripts.Entity.Enemy.Minions
 			MovementComponent = GetComponent<MovementComponent>();
 			AttackComponent = GetComponent<AttackComponent>();
 			Weapon = GetComponent<BaseWeapon>();
+
+			Effects.Add(new SharpBlade(this));
 		}
 
 		protected override void Awake()
@@ -70,6 +75,8 @@ namespace Assets.Scripts.Entity.Enemy.Minions
 
 			base.Update();
 			AI.Update();
+
+			logger.Log(Effects.Count);
 		}
 
 		protected override void FixedUpdate()
@@ -86,7 +93,7 @@ namespace Assets.Scripts.Entity.Enemy.Minions
 
 		public void Move(Vector3 velocity)
 		{
-			if (State != EState.IDLE) return;
+			if (State != EState.Idle) return;
 
 			Rb.linearVelocity = new()
 			{
@@ -104,8 +111,15 @@ namespace Assets.Scripts.Entity.Enemy.Minions
 
 		public void DoAnimationAttack()
 		{
-			if (State != EState.IDLE) return;
-			State = EState.ATTACKING;
+			if (State != EState.Idle) return;
+			if (!attackHolder.InAttackCooldown()) State = EState.Attacking;
+		}
+
+		public void TakingHit(BaseEntity attacker, float value)
+		{
+			DecreaseHealth(value);
+			float direction = this.GetDirectionTo(attacker);
+			FlipSprite(direction);
 		}
 
 		public void DecreaseHealth(float value)
@@ -113,13 +127,13 @@ namespace Assets.Scripts.Entity.Enemy.Minions
 			if (IsDead()) return;
 
 			HealthComponent.Health -= value;
-			State = EState.TAKEHIT;
+			State = EState.TakeHit;
 		}
 
 		public void Dead()
 		{
 			if (IsDead()) return;
-			State = EState.DEAD;
+			State = EState.Dead;
 		}
 	}
 }

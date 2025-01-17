@@ -10,6 +10,7 @@ namespace Assets.Scripts.Components
 	public class HealthComponent : MonoBehaviour
 	{
 		public float Health;
+		public float HealthRegeneration;
 		public float MaxHealth;
 	}
 }

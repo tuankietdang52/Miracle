@@ -13,9 +13,6 @@ namespace Assets.Scripts.Character.LostKnight
 {
 	public class LostKnightAnimator : BaseAnimator
 	{
-		private bool isAttack = false;
-		private bool isTakeHitPlay = false;
-		private bool isDead = false;
 		private readonly ICanAttack attackBehaviour;
 
 		public LostKnightAnimator(BaseEntity owner, Animator animator, ICanAttack attackBehaviour)
@@ -23,20 +20,37 @@ namespace Assets.Scripts.Character.LostKnight
 			Owner = owner;
 			AnimatorController = animator;
 			this.attackBehaviour = attackBehaviour;
+
+			owner.OnStateChanged += TrackingState;
+		}
+
+		private void TrackingState(object sender, EState state)
+		{
+			switch (state)
+			{
+				case EState.Attacking:
+					DoAttack();
+					break;
+
+				case EState.TakeHit:
+					DoTakeHit();
+					break;
+
+				case EState.Dead:
+					OnDead();
+					break;
+
+				default:
+					return;
+			}
 		}
 
 		public override void Update()
 		{
-			if (Owner.IsDead())
-			{
-				UpdateOnDead();
-				return;
-			}
+			if (Owner.IsDead()) return;
 
 			UpdateMagnitude();
 			UpdateVelocityY();
-			UpdatePlayerAttack();
-			UpdateTakeHit();
 		}
 
 		private void UpdateMagnitude()
@@ -53,36 +67,23 @@ namespace Assets.Scripts.Character.LostKnight
 			AnimatorController.SetBool("isOnGround", Owner.IsOnGround());
 		}
 
-		private void UpdatePlayerAttack()
+		private void DoAttack()
 		{
 			AttackHolder attackHolder = attackBehaviour.AttackHolder;
 
-			if (Owner.State == EState.ATTACKING && !isAttack)
-			{
-				var comboIndex = attackHolder.GetComboIndex();
-				isAttack = true;
-				Trigger($"attack{comboIndex}");
-			}
-			else if (Owner.State != EState.ATTACKING) isAttack = false;
+			var comboIndex = attackHolder.GetComboIndex();
+			Trigger($"attack{comboIndex}");
 		}
 
-		private void UpdateTakeHit()
+		private void DoTakeHit()
 		{
-			if (Owner.State == EState.TAKEHIT && !isTakeHitPlay)
-			{
-				Trigger("takeHit");
-				isTakeHitPlay = true;
-			}
-			else if (Owner.State != EState.TAKEHIT) isTakeHitPlay = false;
+			Trigger("takeHit");
 		}
 
-		private void UpdateOnDead()
+		private void OnDead()
 		{
-			if (isDead) return;
-
 			Trigger("dead");
 			SetBool("isDead", true);
-			isDead = true;
 		}
 	}
 }

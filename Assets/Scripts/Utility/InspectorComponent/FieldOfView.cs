@@ -65,22 +65,17 @@ namespace Assets.Scripts.Utility.InspectorComponent
 			}
 		}
 
-		private bool IsTargetAttackable(BaseEntity entity)
-		{
-			return entity.IsImplement<IAttackable>() != null && !entity.IsDead();
-		}
-
 		private bool IsValid(Collider2D collider, out BaseEntity enemy)
 		{
 			BaseEntity temp = null;
 
-			bool isEnemy = Owner.EnemyTag.Length != 0 &&
-				Owner.EnemyTag.Contains(collider.gameObject.tag);
+			bool isEnemy = Owner.EnemyTags.Length != 0 &&
+				Owner.EnemyTags.Contains(collider.gameObject.tag);
 
 			var result = isEnemy
 				&& collider.gameObject != Owner.gameObject
 				&& collider.TryGetComponent(out temp)
-				&& IsTargetAttackable(temp);
+				&& temp.IsAttackable();
 
 			enemy = result ? temp : null;
 			return enemy != null;

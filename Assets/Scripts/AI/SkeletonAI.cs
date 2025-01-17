@@ -18,6 +18,7 @@ namespace Assets.Scripts.AI
 		private readonly Skeleton owner;
 		private BaseEntity curTarget = null;
 		private readonly CooldownTimer cooldownTimer;
+		private bool isAttack = false;
 
 		public SkeletonAI(Skeleton owner)
 		{
@@ -71,7 +72,8 @@ namespace Assets.Scripts.AI
 
 		private void MoveToTarget(BaseEntity target)
 		{
-			if (owner.State != EState.IDLE) return;
+			if (isAttack) return;
+			if (owner.State != EState.Idle) return;
 
 			var movement = owner.MovementComponent;
 			float velocityX = target.transform.position.x >= owner.transform.position.x ?
@@ -87,11 +89,13 @@ namespace Assets.Scripts.AI
 
 		private void Attack()
 		{
-			if (owner.State != EState.IDLE) return;
-			if (owner.AttackHolder.AttackHandler.IsEnemiesOnAttackRange())
+			if (owner.State != EState.Idle) return;
+			if (owner.AttackHolder.IsEnemiesOnAttackRange())
 			{
+				isAttack = true;
 				owner.DoAnimationAttack();
 			}
+			else isAttack = false;
 		}
 	}
 }
